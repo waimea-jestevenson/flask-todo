@@ -24,11 +24,12 @@
     <article>
 
         <ul>
-            {% for thing in tasks %}
+        <section id="task">
+            {% for task in tasks %}
 
                 <li>
-                    <a href="/thing/{{ tasks.id }}">
-                        {{ tasks.name }}
+                    <a href="/thing/{{ task.id }}">
+                        {{ task.name }}
                     </a>
                 </li>
 
@@ -38,7 +39,7 @@
 
             {% endfor %}
         </ul>
-
+        </section>
     </article>
 
 
@@ -59,6 +60,7 @@
                 type="number"
                 name="priority"
                 min="0"
+                max="5"
                 placeholder="priority"
                 required
             >
