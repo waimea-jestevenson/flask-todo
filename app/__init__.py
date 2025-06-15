@@ -4,12 +4,12 @@
 
 from flask import Flask, render_template, request, flash, redirect
 import html
-
+from libsql_client  import create_client_sync
 from app.helpers.session import init_session
 from app.helpers.db import connect_db
 from app.helpers.errors import register_error_handlers, not_found_error
-
-
+from dotenv         import load_dotenv
+import os
 # Create the app
 app = Flask(__name__)
 
@@ -18,6 +18,18 @@ init_session(app)
 
 # Handle 404 and 500 errors
 register_error_handlers(app)
+
+load_dotenv()
+TURSO_URL = os.getenv("TURSO_URL")
+TURSO_KEY = os.getenv("TURSO_KEY")
+
+client = None
+
+def connect_db():
+    global client
+    if client==None:
+     client = create_client_sync(url=TURSO_URL, auth_token=TURSO_KEY)
+    return client
 
 
 #-----------------------------------------------------------
@@ -37,21 +49,15 @@ def index():
 #-----------------------------------------------------------
 # About page route
 #-----------------------------------------------------------
-@app.get("/about/")
-def about():  
- 
-    return render_template("pages/about.jinja")
 
 
 #-----------------------------------------------------------
 # Things page route - Show all the things, and new thing form
 
 
-
 #-----------------------------------------------------------
 # Thing page route - Show details of a single thing
 #-----------------------------------------------------------
-
 
 
 #-----------------------------------------------------------
@@ -69,12 +75,12 @@ def add_a_thing():
 
     with connect_db() as client:
         # Add the thing to the DB
-        sql = "INSERT INTO things (name, price) VALUES (?, ?)"
+        sql = "INSERT INTO tasks (name, price) VALUES (?, ?)"
         values = [name, price]
         client.execute(sql, values)
 
         # Go back to the home page
-        flash(f"Thing '{name}' added", "success")
+        flash(f"Task '{name}' added", "success")
         return redirect("/things")
 
 
@@ -85,12 +91,12 @@ def add_a_thing():
 def delete_a_thing(id):
     with connect_db() as client:
         # Delete the thing from the DB
-        sql = "DELETE FROM things WHERE id=?"
+        sql = "DELETE FROM tasks WHERE id=?"
         values = [id]
         client.execute(sql, values)
 
         # Go back to the home page
-        flash("Thing deleted", "warning")
+        flash("Task deleted", "warning")
         return redirect("/things")
 
 
